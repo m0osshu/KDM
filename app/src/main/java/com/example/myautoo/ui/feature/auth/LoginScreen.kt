@@ -19,8 +19,7 @@ import com.example.myautoo.ui.viewModel.AuthViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val uiState by authViewModel.uiState.collectAsState()
     val isLoading by authViewModel.isLoading.collectAsState()
     val error by authViewModel.error.collectAsState()
     val user by authViewModel.user.collectAsState()
@@ -74,11 +73,13 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // Email
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = uiState.email,
+                onValueChange = { authViewModel.onEmailChanged(it) },
                 label = { Text("Email", color = Color.Gray) },
                 singleLine = true,
+                isError = uiState.emailError != null,
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -87,15 +88,25 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
                     cursorColor = Color.Black
                 )
             )
+            if (uiState.emailError != null) {
+                Text(
+                    text = uiState.emailError!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Password
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = uiState.password,
+                onValueChange = { authViewModel.onPasswordChanged(it) },
                 label = { Text("Contraseña", color = Color.Gray) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
+                isError = uiState.passwordError != null,
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -104,6 +115,14 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
                     cursorColor = Color.Black
                 )
             )
+            if (uiState.passwordError != null) {
+                Text(
+                    text = uiState.passwordError!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -111,7 +130,8 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
                 CircularProgressIndicator(color = Color.Black)
             } else {
                 Button(
-                    onClick = { authViewModel.signIn(email, password) },
+                    onClick = { authViewModel.signIn() },
+                    enabled = uiState.isFormValid,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
@@ -147,9 +167,9 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
                     popUpTo("login") { inclusive = true }
                 }
             }) {
-                Text("¿No tienes una cuenta? " +
-                        "Crea una cuenta", color = Color.DarkGray)
+                Text("¿No tienes una cuenta? Crea una cuenta", color = Color.DarkGray)
             }
         }
     }
 }
+

@@ -11,9 +11,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.myautoo.R
@@ -30,10 +32,30 @@ fun DetailHeader(
         modifier = modifier
             .fillMaxWidth()
             .height(500.dp)
-            .background(color = Color.Black)
     ) {
+        AsyncImage(
+            model = picUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            placeholder = painterResource(R.drawable.intro_car),
+            error = painterResource(R.drawable.intro_car),
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(Color.Black, Color.Transparent, Color.Black),
+                        startY = 0f,
+                        endY = 1000f
+                    )
+                )
+        )
+
         TopBar(
-            title = "car Detail",
+            title = "Car Detail",
             backIconRes = R.drawable.back1,
             onBack = onBack,
             onTrailingClick = onFav,
@@ -56,4 +78,14 @@ fun DetailHeader(
                 .height(220.dp)
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DetailHeaderPreview() {
+    DetailHeader(
+        picUrl = "",
+        onBack = {},
+        onFav = {}
+    )
 }

@@ -25,6 +25,7 @@ import androidx.constraintlayout.compose.Dimension
 import com.example.myautoo.R
 import com.example.myautoo.ui.viewModel.CarViewModel
 
+
 @Composable
 fun SearchSection(carViewModel: CarViewModel) {
     val searchText by carViewModel.searchText.collectAsState()

@@ -5,6 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class CarModel(
+    val id: Int = 0,
     val title: String = "",
     val description: String = "",
     val totalCapacity: String = "",
@@ -12,5 +13,6 @@ data class CarModel(
     val engineOutput: String = "",  // ← debe coincidir con Firebase
     val picUrl: String = "",
     val price: Double = 0.0,
-    val rating: Double = 0.0
+    val rating: Double = 0.0,
+    val brand: String = ""
 ): Parcelable

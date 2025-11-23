@@ -22,12 +22,63 @@ class AuthViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    fun signIn(email: String, password: String) {
+    // Nuevo: estado del formulario
+    private val _uiState = MutableStateFlow(AuthUiState())
+    private val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.(cl|com)$")
+    val uiState: StateFlow<AuthUiState> = _uiState
+
+    fun onEmailChanged(email: String) {
+        val error = if (!emailRegex.matches(email)) {
+            "Email inválido. Debe terminar en .cl o .com"
+        } else null
+
+        _uiState.value = _uiState.value.copy(
+            email = email,
+            emailError = error,
+            isFormValid = error == null &&
+                    _uiState.value.passwordError == null &&
+                    _uiState.value.confirmPasswordError == null
+        )
+    }
+
+    fun onPasswordChanged(password: String) {
+        val error = if (password.length < 6) {
+            "La contraseña debe tener al menos 6 caracteres"
+        } else null
+
+        _uiState.value = _uiState.value.copy(
+            password = password,
+            passwordError = error,
+            isFormValid = error == null && _uiState.value.emailError == null
+        )
+    }
+
+    fun onConfirmPasswordChanged(confirm: String) {
+        val error = if (confirm != _uiState.value.password) {
+            "Las contraseñas no coinciden"
+        } else null
+
+        _uiState.value = _uiState.value.copy(
+            confirmPassword = confirm,
+            confirmPasswordError = error,
+            isFormValid = error == null &&
+                    _uiState.value.passwordError == null &&
+                    _uiState.value.emailError == null
+        )
+    }
+
+    fun signIn() {
+        val state = _uiState.value
+        if (!state.isFormValid) {
+            _error.value = "Formulario inválido"
+            return
+        }
+
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             try {
-                auth.signInWithEmailAndPassword(email, password).await()
+                auth.signInWithEmailAndPassword(state.email, state.password).await()
                 _user.value = auth.currentUser
             } catch (e: Exception) {
                 _error.value = e.message
@@ -37,12 +88,18 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun signUp(email: String, password: String) {
+    fun signUp() {
+        val state = _uiState.value
+        if (!state.isFormValid) {
+            _error.value = "Formulario inválido"
+            return
+        }
+
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             try {
-                auth.createUserWithEmailAndPassword(email, password).await()
+                auth.createUserWithEmailAndPassword(state.email, state.password).await()
                 _user.value = auth.currentUser
             } catch (e: Exception) {
                 _error.value = e.message

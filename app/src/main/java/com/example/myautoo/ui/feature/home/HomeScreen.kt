@@ -1,6 +1,7 @@
 package com.example.myautoo.ui.feature.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.example.myautoo.data.model.CarModel
 import com.example.myautoo.ui.viewModel.CarViewModel
 import com.example.myautoo.ui.viewModel.CategoryViewModel
+import com.example.myautoo.ui.feature.home.BottomNavBar
 
 @Composable
 fun MainScreen(
@@ -76,7 +78,10 @@ fun MainScreen(
                 } else {
                     CategoryList(
                         categories = categories,
-                        modifier = Modifier
+                        modifier = Modifier,
+                        onCategoryClick = { marca ->
+                            carViewModel.onBrandSelected(marca.nombre)
+                        }
                     )
                 }
             }
@@ -96,7 +101,13 @@ fun MainScreen(
                             .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("mas vendidos", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            "Mostrar todos",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.clickable{
+                                carViewModel.clearBrandFilter()
+                            })
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -134,15 +145,16 @@ fun MainScreen(
                 }
             }
         }
-
-        // BOTTOM NAV BAR - AGREGADO
         BottomNavBar(
             onProfileClick = onProfileClick,
             onCartClick = onCartClick,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
+                .fillMaxWidth()
                 .navigationBarsPadding()
                 .padding(horizontal = 16.dp, vertical = 24.dp)
         )
     }
 }
+
+
