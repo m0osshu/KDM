@@ -35,7 +35,7 @@ fun DetailSpecs(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        BrandCard(brandName = brand, brandImageUrl = brandImageUrl)
+        BrandCard(brandName = brand, brandImageUrl = brandImageUrl, onClick = {})
         Column {
             Text(
                 text = "Rating",

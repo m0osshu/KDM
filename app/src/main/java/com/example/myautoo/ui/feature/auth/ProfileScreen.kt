@@ -1,5 +1,9 @@
 package com.example.myautoo.ui.feature.auth
 
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,24 +20,88 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.myautoo.R
 import com.example.myautoo.navigation.Screens
 import com.example.myautoo.ui.viewModel.AuthViewModel
+import com.example.myautoo.ui.viewModel.UserPhotoViewModel
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
+fun ProfileScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel,
+    userPhotoViewModel: UserPhotoViewModel
+) {
     val user by authViewModel.user.collectAsState()
+    val photoUri by userPhotoViewModel.photoUri.collectAsState()
+
+    val context = LocalContext.current
+    var tempUri: Uri? = null // ← Declaración de tempUri
+
+    LaunchedEffect(user) {
+        if (user == null) {
+            navController.navigate(Screens.LOGIN) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
+
+    // Launcher para galería
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { selectedUri ->
+            user?.uid?.let { userId ->
+                userPhotoViewModel.savePhoto(userId, uri.toString())
+            }
+        }
+    }
+
+    // Launcher para cámara
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            tempUri?.let { uri ->
+                user?.uid?.let { userId: String ->
+                    userPhotoViewModel.savePhoto(userId, uri.toString())
+                }
+            }
+        }
+    }
+
+    // Permiso de cámara
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            val tempFile = File(context.cacheDir, "profile_photo.jpg")
+            tempUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                tempFile
+            )
+            cameraLauncher.launch(tempUri)
+        } else {
+            Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -54,38 +122,55 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
             verticalArrangement = Arrangement.Center
         ) {
             if (user != null) {
-                Image(
-                    painter = painterResource(R.drawable.profile),
-                    contentDescription = "Foto de perfil",
-                    modifier = Modifier.size(120.dp)
-                )
+                if (photoUri != null) {
+                    AsyncImage(
+                        model = photoUri,
+                        contentDescription = "Foto de perfil",
+                        modifier = Modifier.size(120.dp)
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(R.drawable.profile),
+                        contentDescription = "Foto por defecto",
+                        modifier = Modifier.size(120.dp)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text(
-                    text = "Has iniciado sesión como:",
-                    fontSize = 18.sp,
-                    color = Color.DarkGray
-                )
+                Button(
+                    onClick = { galleryLauncher.launch("image/*") },
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Gray,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Seleccionar desde galería")
+                }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = user?.email ?: "Email no disponible",
-                    fontSize = 20.sp,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold
-                )
+                Button(
+                    onClick = { cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA) },
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Black,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Tomar foto con cámara")
+                }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     onClick = {
                         authViewModel.signOut()
                         navController.navigate(Screens.LOGIN) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                inclusive = true
-                            }
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
                             launchSingleTop = true
                         }
                     },
@@ -98,48 +183,26 @@ fun ProfileScreen(navController: NavController, authViewModel: AuthViewModel) {
                         contentColor = Color.White
                     )
                 ) {
-                    Text(
-                        text = "Cerrar Sesión",
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Text("Cerrar Sesión", fontWeight = FontWeight.SemiBold)
                 }
-            } else {
-                Image(
-                    painter = painterResource(R.drawable.profile),
-                    contentDescription = "Perfil no logueado",
-                    modifier = Modifier.size(100.dp)
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = "No has iniciado sesión.",
-                    fontSize = 20.sp,
-                    color = Color.DarkGray,
-                    fontWeight = FontWeight.Bold
-                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = {
-                        navController.navigate(Screens.LOGIN)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
+                    onClick = { navController.navigate(Screens.ADMIN) },
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black,
+                        containerColor = Color.Blue,
                         contentColor = Color.White
                     )
                 ) {
-                    Text(
-                        text = "Iniciar Sesión / Registrarse",
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Text("Panel de Marcas (Admin)")
                 }
             }
         }
     }
 }
+
+
+

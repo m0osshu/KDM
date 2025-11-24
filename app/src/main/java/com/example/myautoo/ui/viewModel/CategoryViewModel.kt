@@ -4,13 +4,14 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myautoo.data.remote.api.RetrofitClient
 import com.example.myautoo.data.remote.dto.MarcaDto
 import com.example.myautoo.data.repository.MarcaRepository
 import kotlinx.coroutines.launch
 
 class CategoryViewModel : ViewModel() {
 
-    private val repo = MarcaRepository()
+    private val repo = MarcaRepository(RetrofitClient.marcaApi)
 
     private val _categories = mutableStateOf<List<MarcaDto>>(emptyList())
     val categories: State<List<MarcaDto>> = _categories

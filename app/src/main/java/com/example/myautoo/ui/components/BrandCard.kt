@@ -1,6 +1,7 @@
 package com.example.myautoo.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -19,17 +20,20 @@ import coil.compose.AsyncImage
 fun BrandCard(
     brandImageUrl: String,
     brandName: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
     Column(
-        modifier = modifier.padding(8.dp),
+        modifier = modifier
+            .padding(8.dp)
+            .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
 
     ) {
         AsyncImage(
             model = brandImageUrl,
-            contentDescription = brandName,
+            contentDescription = brandName, // Mejora de accesibilidad y para el test
             modifier = Modifier
                 .size(64.dp)
                 .clip(CircleShape)

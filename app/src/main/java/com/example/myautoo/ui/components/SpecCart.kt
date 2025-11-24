@@ -17,28 +17,30 @@ import androidx.compose.ui.unit.sp
 import com.example.myautoo.R
 
 @Composable
-fun SpecCard(iconRes: Int, title: String, value: String, modifier: Modifier= Modifier) {
-    Column(modifier=modifier.clip(RoundedCornerShape(10.dp))
-        .background(colorResource(R.color.grey))
-        .padding(top = 16.dp, bottom = 12.dp)
+fun SpecCard(iconRes: Int, title: String, value: String, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(colorResource(R.color.grey))
+            .padding(top = 16.dp, bottom = 12.dp)
     ) {
         Image(
-            painterResource(iconRes),
-            contentDescription = null,
-            modifier=Modifier.padding(start = 16.dp)
+            painter = painterResource(iconRes),
+            contentDescription = title, // Mejora para accesibilidad y testing
+            modifier = Modifier.padding(start = 16.dp)
         )
         Text(
             text = title,
             color = colorResource(R.color.black),
             fontSize = 16.sp,
-            modifier=Modifier.padding(start = 16.dp)
+            modifier = Modifier.padding(start = 16.dp)
 
         )
         Text(
             text = value,
             color = colorResource(R.color.black),
             fontWeight = FontWeight.Bold,
-            modifier=Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp)
 
         )
     }

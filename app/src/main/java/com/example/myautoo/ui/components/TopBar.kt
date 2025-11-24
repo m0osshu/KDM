@@ -29,7 +29,7 @@ fun TopBar(
     Box(modifier = modifier.fillMaxWidth()) {
         Image(
             painter = painterResource(backIconRes),
-            contentDescription = null,
+            contentDescription = "Back",
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(start = 16.dp)
@@ -47,7 +47,7 @@ fun TopBar(
         trailingIconRes?.let {
             Image(
                 painter = painterResource(it),
-                contentDescription = null,
+                contentDescription = "Trailing Action",
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(end = 16.dp)

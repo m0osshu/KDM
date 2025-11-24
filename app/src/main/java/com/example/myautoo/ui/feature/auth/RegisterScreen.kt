@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myautoo.R
+import com.example.myautoo.navigation.Screens
 import com.example.myautoo.ui.viewModel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,11 +44,19 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
 
     LaunchedEffect(user) {
         if (user != null) {
-            navController.navigate("home") {
-                popUpTo("login") { inclusive = true }
+            navController.navigate(Screens.HOME) {
+                popUpTo(Screens.LOGIN) { inclusive = true }
+                launchSingleTop = true
+            }
+        } else {
+            // Si no hay usuario, redirige al login
+            navController.navigate(Screens.LOGIN) {
+                popUpTo(Screens.REGISTER) { inclusive = true }
+                launchSingleTop = true
             }
         }
     }
+
 
     Scaffold(
         topBar = {

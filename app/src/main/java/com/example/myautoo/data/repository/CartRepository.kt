@@ -3,7 +3,9 @@ package com.example.myautoo.data.repository
 import com.example.myautoo.data.local.dao.CartDao
 import com.example.myautoo.data.local.entity.CartItemEntity
 
-class CartRepository(private val cartDao: CartDao) {
+class CartRepository(
+    private val cartDao: CartDao
+) {
 
     val cartItems = cartDao.getCartItems()
 
