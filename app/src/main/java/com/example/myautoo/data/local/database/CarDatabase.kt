@@ -10,7 +10,7 @@ import com.example.myautoo.data.local.entity.CartItemEntity
 import com.example.myautoo.data.local.entity.UserPhotoEntity
 
 @Database(
-    entities = [CartItemEntity::class, UserPhotoEntity::class], // ← agrega aquí tu nueva entidad
+    entities = [CartItemEntity::class, UserPhotoEntity::class], //Aca podríamos ir sumando diferentes entidades para guardarlas en el cache local de la app
     version = 2,
     exportSchema = false
 )

@@ -14,6 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myautoo.R
+import com.example.myautoo.navigation.Screens
+import com.example.myautoo.ui.viewModel.AuthResult
 import com.example.myautoo.ui.viewModel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -21,14 +23,19 @@ import com.example.myautoo.ui.viewModel.AuthViewModel
 fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
     val uiState by authViewModel.uiState.collectAsState()
     val isLoading by authViewModel.isLoading.collectAsState()
-    val error by authViewModel.error.collectAsState()
-    val user by authViewModel.user.collectAsState()
+    val authResult by authViewModel.authResult.collectAsState()
 
-    LaunchedEffect(user) {
-        if (user != null) {
-            navController.navigate("home") {
-                popUpTo("login") { inclusive = true }
+// Acá se maneja el resultado de autenticación
+    LaunchedEffect(authResult) {
+        when (authResult) {
+            is AuthResult.Success -> {
+                // Acá navega al perfil despues de iniciar sesion
+                navController.navigate(Screens.PROFILE) {
+                    popUpTo(Screens.LOGIN) { inclusive = true }
+                }
+                authViewModel.resetAuthResult()
             }
+            else -> {}
         }
     }
 
@@ -124,6 +131,21 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
                 )
             }
 
+            // Mostrar error de autenticación is hay un problema
+            when (val result = authResult) {
+                is AuthResult.Error -> {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = result.message,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                else -> {}
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             if (isLoading) {
@@ -150,22 +172,10 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
                 }
             }
 
-            error?.let {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center
-                )
-            }
-
             Spacer(modifier = Modifier.height(24.dp))
 
             TextButton(onClick = {
-                navController.navigate("register") {
-                    popUpTo("login") { inclusive = true }
-                }
+                navController.navigate(Screens.REGISTER)
             }) {
                 Text("¿No tienes una cuenta? Crea una cuenta", color = Color.DarkGray)
             }

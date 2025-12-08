@@ -37,22 +37,22 @@ fun AppNavGraph(navController: NavHostController = rememberNavController()) {
     val carViewModel: CarViewModel = viewModel()
     val authViewModel: AuthViewModel = viewModel()
 
-    // 5. Creación de la Factory para CartViewModel
+    // Creación de la Factory para CartViewModel
     val context = LocalContext.current
     val db = CarDatabase.getDatabase(context)
     val cartRepository = CartRepository(db.cartDao())
     val cartViewModelFactory = CartViewModelFactory(cartRepository)
 
-    //5.5 Creacion de la Factory para UserPhotoViewModel
+    //Creacion de la Factory para UserPhotoViewModel
     val userPhotoRepository = UserPhotoRepository(db.userPhotoDao())
     val userPhotoViewModelFactory = UserPhotoViewModelFactory(userPhotoRepository)
     val userPhotoViewModel: UserPhotoViewModel = viewModel(factory = userPhotoViewModelFactory)
 
 
-    // 6. Instanciación de CartViewModel usando la Factory
+    // Instanciación de CartViewModel usando la Factory
     val cartViewModel: CartViewModel = viewModel(factory = cartViewModelFactory)
 
-    NavHost(navController = navController, startDestination = Screens.LOGIN) {
+    NavHost(navController = navController, startDestination = Screens.HOME) {
         composable(Screens.LOGIN) {
             LoginScreen(
                 navController = navController,

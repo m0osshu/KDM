@@ -47,7 +47,7 @@ fun CartScreen(
     val cartItems by cartViewModel.cartItems.collectAsState()
     val totalPrice by cartViewModel.totalPrice.collectAsState()
     val context = LocalContext.current
-    val user by authViewModel.user.collectAsState()
+    val currentUser by authViewModel.currentUser.collectAsState()
 
     Scaffold(
         topBar = {
@@ -76,7 +76,7 @@ fun CartScreen(
                     )
                     Button(
                         onClick = {
-                            if (user != null) {
+                            if (currentUser != null) {
                                 cartViewModel.clearCart()
                                 Toast.makeText(context, "Compra realizada con éxito", Toast.LENGTH_SHORT).show()
                                 navController.navigate(Screens.HOME) {

@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myautoo.R
 import com.example.myautoo.navigation.Screens
+import com.example.myautoo.ui.viewModel.AuthResult
 import com.example.myautoo.ui.viewModel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,21 +40,19 @@ import com.example.myautoo.ui.viewModel.AuthViewModel
 fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
     val uiState by authViewModel.uiState.collectAsState()
     val isLoading by authViewModel.isLoading.collectAsState()
-    val error by authViewModel.error.collectAsState()
-    val user by authViewModel.user.collectAsState()
+    val authResult by authViewModel.authResult.collectAsState()
 
-    LaunchedEffect(user) {
-        if (user != null) {
-            navController.navigate(Screens.HOME) {
-                popUpTo(Screens.LOGIN) { inclusive = true }
-                launchSingleTop = true
+// resultado de autenticación
+    LaunchedEffect(authResult) {
+        when (authResult) {
+            is AuthResult.Success -> {
+                // Después de registro exitoso, ir al login
+                navController.navigate(Screens.LOGIN) {
+                    popUpTo(Screens.REGISTER) { inclusive = true }
+                }
+                authViewModel.resetAuthResult()
             }
-        } else {
-            // Si no hay usuario, redirige al login
-            navController.navigate(Screens.LOGIN) {
-                popUpTo(Screens.REGISTER) { inclusive = true }
-                launchSingleTop = true
-            }
+            else -> {}
         }
     }
 
@@ -135,6 +134,21 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
                 Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
 
+            //error de autenticación
+            when (val result = authResult) {
+                is AuthResult.Error -> {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = result.message,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                else -> {}
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             if (isLoading) {
@@ -152,11 +166,6 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
                 ) {
                     Text("Registrar", style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold))
                 }
-            }
-
-            error?.let {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center)
             }
 
             Spacer(modifier = Modifier.height(24.dp))

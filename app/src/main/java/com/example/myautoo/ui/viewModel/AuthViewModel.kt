@@ -9,23 +9,39 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+
+sealed class AuthResult{
+    object Success: AuthResult()
+    data class Error(val message: String): AuthResult()
+    object Loading: AuthResult()
+    object Idle: AuthResult()
+}
+
 class AuthViewModel : ViewModel() {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    private val _user = MutableStateFlow<FirebaseUser?>(auth.currentUser)
-    val user: StateFlow<FirebaseUser?> = _user
+    //Estado UI
+    private val _uiState = MutableStateFlow(AuthUiState())
+    val uiState: StateFlow<AuthUiState> = _uiState
 
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error
+    private val _authResult = MutableStateFlow<AuthResult>(AuthResult.Idle)
+    val authResult: StateFlow<AuthResult> = _authResult
+
+    private val _currentUser = MutableStateFlow<FirebaseUser?>(auth.currentUser)
+    val currentUser: StateFlow<FirebaseUser?> = _currentUser
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
-
-    // Nuevo: estado del formulario
-    private val _uiState = MutableStateFlow(AuthUiState())
     private val emailRegex = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.(cl|com)$")
-    val uiState: StateFlow<AuthUiState> = _uiState
+
+    init{
+        checkAuthState()
+    }
+
+    private fun checkAuthState(){
+        _currentUser.value = auth.currentUser
+    }
 
     fun onEmailChanged(email: String) {
         val error = if (!emailRegex.matches(email)) {
@@ -68,20 +84,26 @@ class AuthViewModel : ViewModel() {
     }
 
     fun signIn() {
-        val state = _uiState.value
-        if (!state.isFormValid) {
-            _error.value = "Formulario inválido"
+        if (!_uiState.value.isFormValid) {
+            _authResult.value = AuthResult.Error("Formulario inválido")
             return
         }
 
         viewModelScope.launch {
             _isLoading.value = true
-            _error.value = null
+            _authResult.value = AuthResult.Loading
             try {
-                auth.signInWithEmailAndPassword(state.email, state.password).await()
-                _user.value = auth.currentUser
+                auth.signInWithEmailAndPassword(
+                    _uiState.value.email,
+                    _uiState.value.password
+                ).await()
+
+                _currentUser.value = auth.currentUser
+                _authResult.value = AuthResult.Success
+                // Resetear el estado del formulario
+                _uiState.value = AuthUiState()
             } catch (e: Exception) {
-                _error.value = e.message
+                _authResult.value = AuthResult.Error(e.message ?: "Error al iniciar sesión")
             } finally {
                 _isLoading.value = false
             }
@@ -89,20 +111,31 @@ class AuthViewModel : ViewModel() {
     }
 
     fun signUp() {
-        val state = _uiState.value
-        if (!state.isFormValid) {
-            _error.value = "Formulario inválido"
+        if (!_uiState.value.isFormValid) {
+            _authResult.value = AuthResult.Error("Formulario inválido")
+            return
+        }
+
+        if (_uiState.value.password != _uiState.value.confirmPassword) {
+            _authResult.value = AuthResult.Error("Las contraseñas no coinciden")
             return
         }
 
         viewModelScope.launch {
             _isLoading.value = true
-            _error.value = null
+            _authResult.value = AuthResult.Loading
             try {
-                auth.createUserWithEmailAndPassword(state.email, state.password).await()
-                _user.value = auth.currentUser
+                auth.createUserWithEmailAndPassword(
+                    _uiState.value.email,
+                    _uiState.value.password
+                ).await()
+
+                _currentUser.value = auth.currentUser
+                _authResult.value = AuthResult.Success
+                // Resetear el estado del formulario
+                _uiState.value = AuthUiState()
             } catch (e: Exception) {
-                _error.value = e.message
+                _authResult.value = AuthResult.Error(e.message ?: "Error al registrar usuario")
             } finally {
                 _isLoading.value = false
             }
@@ -111,6 +144,12 @@ class AuthViewModel : ViewModel() {
 
     fun signOut() {
         auth.signOut()
-        _user.value = null
+        _currentUser.value = null
+        _authResult.value = AuthResult.Idle
+        _uiState.value = AuthUiState()
+    }
+
+    fun resetAuthResult() {
+        _authResult.value = AuthResult.Idle
     }
 }

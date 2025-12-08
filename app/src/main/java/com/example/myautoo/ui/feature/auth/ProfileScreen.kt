@@ -47,17 +47,16 @@ fun ProfileScreen(
     authViewModel: AuthViewModel,
     userPhotoViewModel: UserPhotoViewModel
 ) {
-    val user by authViewModel.user.collectAsState()
+    val currentUser by authViewModel.currentUser.collectAsState()
     val photoUri by userPhotoViewModel.photoUri.collectAsState()
 
     val context = LocalContext.current
     var tempUri: Uri? = null // ← Declaración de tempUri
 
-    LaunchedEffect(user) {
-        if (user == null) {
+    LaunchedEffect(currentUser) {
+        if (currentUser == null) {
             navController.navigate(Screens.LOGIN) {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                launchSingleTop = true
+                popUpTo(Screens.PROFILE) { inclusive = true }
             }
         }
     }
@@ -67,7 +66,7 @@ fun ProfileScreen(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let { selectedUri ->
-            user?.uid?.let { userId ->
+            currentUser?.uid?.let { userId ->
                 userPhotoViewModel.savePhoto(userId, uri.toString())
             }
         }
@@ -79,7 +78,7 @@ fun ProfileScreen(
     ) { success ->
         if (success) {
             tempUri?.let { uri ->
-                user?.uid?.let { userId: String ->
+                currentUser?.uid?.let { userId: String ->
                     userPhotoViewModel.savePhoto(userId, uri.toString())
                 }
             }
@@ -121,7 +120,7 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (user != null) {
+            if (currentUser != null) {
                 if (photoUri != null) {
                     AsyncImage(
                         model = photoUri,
