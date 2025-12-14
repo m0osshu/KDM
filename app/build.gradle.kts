@@ -45,7 +45,20 @@ android {
         compose = true
     }
     buildToolsVersion = "35.0.0"
+
+    packaging {
+        resources {
+            excludes += setOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md",
+                "META-INF/NOTICE.md",
+                "META-INF/NOTICE",
+                "META-INF/LICENSE"
+            )
+        }
+    }
 }
+
 
 dependencies {
     // Firebase
@@ -97,20 +110,18 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation("androidx.navigation:navigation-testing:2.9.3")
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    //Kotest
-    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
-    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
-
-    //JUnit5
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.0.0")
+    testImplementation("org.mockito:mockito-core:5.3.1")
 
     //Mock
     testImplementation("io.mockk:mockk:1.13.10")
+    androidTestImplementation("io.mockk:mockk-android:1.13.10")
+
 
     //Retrofit y Gson Converter
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    testImplementation(kotlin("test"))
 }
 
 tasks.withType<Test>().configureEach{

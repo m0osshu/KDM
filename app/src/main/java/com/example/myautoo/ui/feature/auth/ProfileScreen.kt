@@ -51,7 +51,7 @@ fun ProfileScreen(
     val photoUri by userPhotoViewModel.photoUri.collectAsState()
 
     val context = LocalContext.current
-    var tempUri: Uri? = null // ← Declaración de tempUri
+    var tempUri: Uri? = null // ← Declaración de espacio de memoria para guardar foto
 
     LaunchedEffect(currentUser) {
         if (currentUser == null) {
