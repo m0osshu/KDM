@@ -1,10 +1,7 @@
 package com.example.myautoo.navigationTest
 
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,7 +33,7 @@ class NavGraphTest {
     }
 
     @Test
-    fun startDestination_esHome() {
+    fun startDestination_home() {
         assertEquals(
             Screens.HOME,
             navController.currentBackStackEntry?.destination?.route
@@ -44,7 +41,7 @@ class NavGraphTest {
     }
 
     @Test
-    fun navegar_aRegister() {
+    fun navegar_register() {
         composeTestRule.runOnUiThread {
             navController.navigate(Screens.REGISTER)
         }
@@ -56,7 +53,7 @@ class NavGraphTest {
     }
 
     @Test
-    fun navegar_aProfile() {
+    fun navegar_profile() {
         composeTestRule.runOnUiThread {
             navController.navigate(Screens.PROFILE)
         }
@@ -68,7 +65,7 @@ class NavGraphTest {
     }
 
     @Test
-    fun navegar_aCart() {
+    fun navegar_cart() {
         composeTestRule.runOnUiThread {
             navController.navigate(Screens.CART)
         }
@@ -80,7 +77,7 @@ class NavGraphTest {
     }
 
     @Test
-    fun navegar_aAdmin() {
+    fun navegar_admin() {
         composeTestRule.runOnUiThread {
             navController.navigate(Screens.ADMIN)
         }

@@ -5,14 +5,18 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -116,54 +121,80 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(24.dp),
+                .padding(24.dp)
+                .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
+            val userModifier = Modifier
+                .size(140.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray)
+                .border(
+                    width = 2.dp,
+                    color = Color.Gray,
+                    shape = CircleShape
+                )
+            
             if (currentUser != null) {
                 if (photoUri != null) {
                     AsyncImage(
                         model = photoUri,
                         contentDescription = "Foto de perfil",
-                        modifier = Modifier.size(120.dp)
+                        modifier = userModifier
                     )
                 } else {
                     Image(
                         painter = painterResource(R.drawable.profile),
                         contentDescription = "Foto por defecto",
-                        modifier = Modifier.size(120.dp)
+                        modifier = userModifier
                     )
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = { galleryLauncher.launch("image/*") },
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Gray,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("Seleccionar desde galería")
-                }
-
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
-                    onClick = { cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA) },
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("Tomar foto con cámara")
+                Text(
+                    text = currentUser!!.email ?: "",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(84.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.padding(top = 24.dp)
+                ){
+                    Button(
+                        onClick = { galleryLauncher.launch("image/*") },
+                        modifier = Modifier
+                            .height(44.dp)
+                            .weight(1f),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Black,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text("Foto Galería")
+                    }
+
+                    Button(
+                        onClick = { cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA) },
+                        modifier = Modifier
+                            .height(44.dp)
+                            .weight(1f),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Black,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text("Foto Cámara")
+                    }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
                     onClick = {
@@ -178,14 +209,15 @@ fun ProfileScreen(
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black,
+                        containerColor = Color.Red,
                         contentColor = Color.White
                     )
                 ) {
                     Text("Cerrar Sesión", fontWeight = FontWeight.SemiBold)
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
+
 
                 Button(
                     onClick = { navController.navigate(Screens.ADMIN) },
@@ -198,6 +230,8 @@ fun ProfileScreen(
                 ) {
                     Text("Panel de Marcas (Admin)")
                 }
+
+                //Acá quizá haría el bloque de pie de página
             }
         }
     }

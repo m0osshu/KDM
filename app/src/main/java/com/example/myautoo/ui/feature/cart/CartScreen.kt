@@ -4,8 +4,10 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -59,42 +61,6 @@ fun CartScreen(
                     }
                 }
             )
-        },
-        bottomBar = {
-            if (cartItems.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Total: $" + NumberFormat.getNumberInstance(Locale.US).format(totalPrice),
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Button(
-                        onClick = {
-                            if (currentUser != null) {
-                                cartViewModel.clearCart()
-                                Toast.makeText(context, "Compra realizada con éxito", Toast.LENGTH_SHORT).show()
-                                navController.navigate(Screens.HOME) {
-                                    popUpTo(Screens.HOME) { inclusive = true }
-                                }
-                            } else {
-                                navController.navigate(Screens.LOGIN)
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                    ) {
-                        Text("Comprar")
-                    }
-                }
-            }
         }
     ) { paddingValues ->
         if (cartItems.isEmpty()) {
@@ -108,25 +74,75 @@ fun CartScreen(
                 Text("Tu carrito está vacío.")
             }
         } else {
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                items(cartItems) { item ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+
+                // 🔹 RESUMEN FIJO
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Total: $" + NumberFormat
+                            .getNumberInstance(Locale.US)
+                            .format(totalPrice),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Button(
+                        onClick = {
+                            if (currentUser != null) {
+                                cartViewModel.clearCart()
+                                Toast.makeText(
+                                    context,
+                                    "Compra realizada con éxito",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                navController.navigate(Screens.HOME) {
+                                    popUpTo(Screens.HOME) { inclusive = true }
+                                }
+                            } else {
+                                navController.navigate(Screens.LOGIN)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Column {
-                            Text(item.title, fontWeight = FontWeight.Bold)
-                            Text("$" + NumberFormat.getNumberInstance(Locale.US).format(item.price))
-                        }
-                        IconButton(onClick = { cartViewModel.removeFromCart(item) }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                        Text("Comprar")
+                    }
+                }
+
+                // 🔹 LISTA CON SCROLL
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(cartItems) { item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(item.title, fontWeight = FontWeight.Bold)
+                                Text(
+                                    "$" + NumberFormat
+                                        .getNumberInstance(Locale.US)
+                                        .format(item.price)
+                                )
+                            }
+                            IconButton(onClick = {
+                                cartViewModel.removeFromCart(item)
+                            }) {
+                                Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                            }
                         }
                     }
                 }
