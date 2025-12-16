@@ -80,7 +80,7 @@ fun CartScreen(
                     .padding(paddingValues)
             ) {
 
-                // 🔹 RESUMEN FIJO
+//El botón comprar en el bottomBAr a veces generaba problemas de navegación (boton celular), se cambió arriba para evitar errores tontos
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -118,7 +118,7 @@ fun CartScreen(
                     }
                 }
 
-                // 🔹 LISTA CON SCROLL
+                // LISTA de autos a comprar
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {

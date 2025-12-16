@@ -107,6 +107,7 @@ fun ProfileScreen(
         }
     }
 
+    //El perfil estaba ordinario, lo ordené un poco
     Scaffold(
         topBar = {
             AuthHeader(
@@ -127,6 +128,7 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.Center
         ) {
 
+            //Variable para el estilo de la foto del usuario
             val userModifier = Modifier
                 .size(140.dp)
                 .clip(CircleShape)
@@ -136,13 +138,13 @@ fun ProfileScreen(
                     color = Color.Gray,
                     shape = CircleShape
                 )
-            
+
             if (currentUser != null) {
                 if (photoUri != null) {
                     AsyncImage(
                         model = photoUri,
                         contentDescription = "Foto de perfil",
-                        modifier = userModifier
+                        modifier = userModifier //así me ahorro escribir el modifier
                     )
                 } else {
                     Image(
@@ -153,14 +155,17 @@ fun ProfileScreen(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
+                //El correo del usuario, en algún momento lo borré sin querer, ahora vuelve
                 Text(
                     text = currentUser!!.email ?: "",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
 
+                //Se alarga el espaciado, dividir los email y foto de los botones
                 Spacer(modifier = Modifier.height(84.dp))
 
+                //Cree una fila para juntar los dos botones relacionados a la foto del perfil
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.padding(top = 24.dp)
@@ -196,6 +201,22 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
+                //Acceso a la pantalla de admin para editar/agregar marcas
+                Button(
+                    onClick = { navController.navigate(Screens.ADMIN) },
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Blue,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Panel de Marcas (Admin)")
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                //Botón de cerrar sesión. el último y en rojo para distinguirlo
                 Button(
                     onClick = {
                         authViewModel.signOut()
@@ -216,22 +237,7 @@ fun ProfileScreen(
                     Text("Cerrar Sesión", fontWeight = FontWeight.SemiBold)
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
-
-
-                Button(
-                    onClick = { navController.navigate(Screens.ADMIN) },
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Blue,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text("Panel de Marcas (Admin)")
-                }
-
-                //Acá quizá haría el bloque de pie de página
+                //Acá quizá haría el bloque de pie de página pero no se me ocurre nha
             }
         }
     }
