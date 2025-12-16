@@ -62,7 +62,7 @@ fun RegisterScreen(navController: NavController, authViewModel: AuthViewModel) {
             AuthHeader(
                 title = "Registro",
                 backIconRes = R.drawable.back2,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.navigate(Screens.HOME) }
             )
         },
         containerColor = Color.White

@@ -44,7 +44,7 @@ fun LoginScreen(navController: NavController, authViewModel: AuthViewModel) {
             AuthHeader(
                 title = "Login",
                 backIconRes = R.drawable.back2,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.navigate(Screens.HOME)}
             )
         },
         containerColor = Color.White
